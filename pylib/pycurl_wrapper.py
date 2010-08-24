@@ -5,7 +5,7 @@ from cStringIO import StringIO
 from urllib import urlencode
 
 class Curl:
-    def __init__(self, url, headers={}, verbose=False):
+    def __init__(self, url, headers={}, cainfo=None, verbose=False):
         """simplified wrapper to pycurl (get, post, put)
         
         Usage:
@@ -29,6 +29,9 @@ class Curl:
 
         headers = map(lambda val: "%s: %s" % (val, headers[val]), headers)
         self.c.setopt(pycurl.HTTPHEADER, headers)
+
+        if cainfo:
+            self.c.setopt(pycurl.CAINFO, cainfo)
 
     def _perform(self):
         response_buffer = StringIO()
