@@ -1,0 +1,7 @@
+==================
+v1.0 Release Notes
+==================
+
+* Initial release of pycurl-wrapper providing a simplified wrapper
+  for python-pycurl.
+
