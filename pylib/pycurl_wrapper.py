@@ -6,7 +6,7 @@ from urllib import urlencode
 
 class Curl:
     def __init__(self, url, headers={}, cainfo=None, verbose=False):
-        """simplified wrapper to pycurl (get, post, put)
+        """simplified wrapper to pycurl (get, post, put, delete)
         
         Usage:
             print Curl(URL).get()
@@ -70,11 +70,10 @@ class Curl:
 
         return self._perform()
 
-    #def delete(self, attrs={}):
-    #    if attrs:
-    #        encoded_attrs = urlencode(attrs)
-    #        self.c.setopt(pycurl.DELETEFIELDS, encoded_attrs)
-    #    self.c.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
-    #    return self._perform()
-
+    def delete(self, attrs={}):
+        if attrs:
+            encoded_attrs = urlencode(attrs)
+            self.c.setopt(pycurl.DELETEFIELDS, encoded_attrs)
+        self.c.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
+        return self._perform()
 
