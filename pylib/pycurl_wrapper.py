@@ -72,8 +72,7 @@ class Curl:
 
     def delete(self, attrs={}):
         if attrs:
-            encoded_attrs = urlencode(attrs)
-            self.c.setopt(pycurl.DELETEFIELDS, encoded_attrs)
+            self.c.setopt(pycurl.URL, "%s?%s" % (self.url, urlencode(attrs)))
         self.c.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
         return self._perform()
 
