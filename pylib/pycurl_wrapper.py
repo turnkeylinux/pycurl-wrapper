@@ -24,7 +24,7 @@ class Curl:
         self.response_data = None
 
         self.c = pycurl.Curl()
-        self.c.setopt(pycurl.URL, self.url)
+        self.c.setopt(pycurl.URL, str(self.url))
         self.c.setopt(pycurl.VERBOSE, verbose)
 
         headers = map(lambda val: "%s: %s" % (val, headers[val]), headers)
