@@ -148,16 +148,21 @@ class API:
     CREATED = 201
     DELETED = 204
 
+    API_HEADERS = {'Accept': 'application/json'}
+
     def __init__(self, cainfo=None, verbose=False, timeout=None):
         self.client = Client(cainfo, verbose, timeout)
 
     def request(self, method, url, attrs={}, headers={}):
+        _headers = self.API_HEADERS.copy()
+        _headers.update(headers)
+
         # workaround: http://redmine.lighttpd.net/issues/1017
         if method == "PUT":
-            headers['Expect'] = ''
+            _headers['Expect'] = ''
 
         func = getattr(self.client, method.lower())
-        response = func(url, attrs, headers)
+        response = func(url, attrs, _headers)
 
         if not response.code in (self.ALL_OK, self.CREATED, self.DELETED):
             name, description = response.data.split(":", 1)
