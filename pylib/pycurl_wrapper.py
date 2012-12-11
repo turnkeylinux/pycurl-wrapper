@@ -5,7 +5,7 @@ from cStringIO import StringIO
 from urllib import urlencode
 
 class Curl:
-    def __init__(self, url, headers={}, cainfo=None, verbose=False):
+    def __init__(self, url, headers={}, cainfo=None, verbose=False, timeout=None):
         """simplified wrapper to pycurl (get, post, put, delete)
         
         Usage:
@@ -26,6 +26,10 @@ class Curl:
         self.c = pycurl.Curl()
         self.c.setopt(pycurl.URL, str(self.url))
         self.c.setopt(pycurl.VERBOSE, verbose)
+
+        if timeout:
+            self.c.setopt(pycurl.NOSIGNAL, True)
+            self.c.setopt(pycurl.TIMEOUT, timeout)
 
         headers = map(lambda val: "%s: %s" % (val, headers[val]), headers)
         self.c.setopt(pycurl.HTTPHEADER, headers)
