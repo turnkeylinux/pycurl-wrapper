@@ -1,0 +1,18 @@
+==================
+v1.1 Release Notes
+==================
+
+* deprecated old Curl() API
+
+* created new api classes: Client (persistent handle) and API
+
+* support timeouts
+
+* bugfixes:
+
+  - replaced pycurl.DELETEFIELDS by setting attrs in URI
+
+  - bugfix: convert URL to str (e.g., unicode is not supported)
+
+
+
