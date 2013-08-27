@@ -166,7 +166,7 @@ class API:
         try:
             response = func(url, attrs, _headers)
         except Exception, e:
-            raise self.Error(self.ERROR, "error", `e.args`)
+            raise self.Error(self.ERROR, "exception", e.__class__.__name__ + `e.args`)
 
         if not response.code in (self.ALL_OK, self.CREATED, self.DELETED):
             name, description = response.data.split(":", 1)
