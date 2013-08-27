@@ -147,6 +147,7 @@ class API:
     ALL_OK = 200
     CREATED = 201
     DELETED = 204
+    ERROR = 500
 
     API_HEADERS = {'Accept': 'application/json'}
 
@@ -162,7 +163,10 @@ class API:
             _headers['Expect'] = ''
 
         func = getattr(self.client, method.lower())
-        response = func(url, attrs, _headers)
+        try:
+            response = func(url, attrs, _headers)
+        except Exception, e:
+            raise self.Error(self.ERROR, "error", `e.args`)
 
         if not response.code in (self.ALL_OK, self.CREATED, self.DELETED):
             name, description = response.data.split(":", 1)
