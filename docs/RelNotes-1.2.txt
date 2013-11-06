@@ -1,0 +1,11 @@
+==================
+v1.2 Release Notes
+==================
+
+* added default headers to API class (we expect json)
+
+* bugfix: catch pycurl exceptions and wrap in pycurl_wrapper.API.Error
+
+* improve readability of exception errors
+
+* set custom useragent (API usage stats by appliance)
