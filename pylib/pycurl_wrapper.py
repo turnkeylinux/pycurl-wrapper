@@ -1,4 +1,4 @@
-# Copyright (c) 2012 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
+# Copyright (c) 2013 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
 # Copyright (c) 2010 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
 import pycurl
 
@@ -6,7 +6,24 @@ from cStringIO import StringIO
 from urllib import urlencode
 
 import simplejson as json
+import re
 
+def _useragent():
+    vi = pycurl.version_info()
+    ua = "pycurl_wrapper: libcurl/%s %s %s" % (vi[1], vi[5], vi[3])
+    try:
+        apt_ua = file("/etc/apt/apt.conf.d/01turnkey").read()
+        m = re.search(r' \((.*?)\)', apt_ua)
+        if m:
+            ua += " (%s)" % m.groups(1)
+
+    except:
+        pass
+
+    return ua
+
+USERAGENT = _useragent()
+    
 class Client:
     class Response(str):
         def __new__(cls, code, type, data):
@@ -22,6 +39,7 @@ class Client:
     def __init__(self, cainfo=None, verbose=False, timeout=None):
         self.handle = pycurl.Curl()
         self.handle.setopt(pycurl.VERBOSE, verbose)
+        self.handle.setopt(pycurl.USERAGENT, USERAGENT)
 
         if timeout:
             self.handle.setopt(pycurl.NOSIGNAL, True)
