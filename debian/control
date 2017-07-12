@@ -10,6 +10,7 @@ Standards-Version: 4.0.0
 Package: pycurl-wrapper
 Architecture: any
 Depends:
+ ${misc:Depends},
  python (>= 2.4),
  python-pycurl,
  python-simplejson,
