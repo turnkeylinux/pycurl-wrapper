@@ -4,14 +4,16 @@ Priority: optional
 Maintainer: Alon Swartz <alon@turnkeylinux.org>
 Build-Depends:
  debhelper (>= 10),
- python (>= 2.4),
+ dh-python,
+ python-all (>= 2.6.6-3~),
 Standards-Version: 4.0.0
+X-Python-Version: >= 2.6
 
 Package: pycurl-wrapper
 Architecture: any
 Depends:
  ${misc:Depends},
- python (>= 2.4),
+ ${python:Depends},
  python-pycurl,
  python-simplejson,
 Suggests:
