@@ -52,7 +52,8 @@ def parse_email(email):
     return name.strip(), address.strip()
 
 def main():
-    control_fields = parse_control(file("debian/control").read())
+    with open("debian/control", "r") as fob:
+        control_fields = parse_control(fob.read())
     maintainer = control_fields['Maintainer']
     maintainer_name, maintainer_email = parse_email(maintainer)
 
