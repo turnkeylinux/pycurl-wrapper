@@ -2,7 +2,7 @@
 # Copyright (c) 2010 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
 import pycurl
 
-from io import StringIO
+from io import BytesIO, StringIO
 from urllib.parse import urlencode
 
 import simplejson as json
@@ -49,7 +49,7 @@ class Client:
             self.handle.setopt(pycurl.CAINFO, cainfo)
 
     def _perform(self):
-        response_buffer = StringIO()
+        response_buffer = BytesIO()
 
         self.handle.setopt(pycurl.WRITEFUNCTION, response_buffer.write)
         self.handle.perform()
@@ -187,7 +187,7 @@ class API:
             raise self.Error(self.ERROR, "exception", e.__class__.__name__ + repr(e.args))
 
         if not response.code in (self.ALL_OK, self.CREATED, self.DELETED):
-            name, description = response.data.split(":", 1)
+            name, description = response.data.decode().split(":", 1)
             raise self.Error(response.code, name, description)
 
         return json.loads(response.data)
