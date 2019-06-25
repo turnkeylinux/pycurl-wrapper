@@ -2,7 +2,7 @@
 
 import re
 import os.path
-import commands
+from subprocess import check_output, CalledProcessError
 
 from distutils.core import setup
 
@@ -10,9 +10,11 @@ class ExecError(Exception):
     pass
 
 def _getoutput(command):
-    status, output = commands.getstatusoutput(command)
-    if status != 0:
+    try:
+        output = check_output(command)
+    except CalledProcessError:
         raise ExecError()
+
     return output
 
 def get_version():
