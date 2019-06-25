@@ -15,7 +15,7 @@ def _getoutput(command):
     except CalledProcessError:
         raise ExecError()
 
-    return output
+    return output.decode()
 
 def get_version():
     if not os.path.exists("debian/changelog"):
