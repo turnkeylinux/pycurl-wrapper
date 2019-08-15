@@ -2,7 +2,7 @@
 
 import re
 import os.path
-import commands
+import subprocess
 
 from distutils.core import setup
 
@@ -10,7 +10,7 @@ class ExecError(Exception):
     pass
 
 def _getoutput(command):
-    status, output = commands.getstatusoutput(command)
+    status, output = subprocess.getstatusoutput(command)
     if status != 0:
         raise ExecError()
     return output

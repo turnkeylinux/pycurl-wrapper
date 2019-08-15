@@ -2,8 +2,8 @@
 # Copyright (c) 2010 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
 import pycurl
 
-from cStringIO import StringIO
-from urllib import urlencode
+from io import StringIO
+from urllib.parse import urlencode
 
 import simplejson as json
 import re
@@ -68,7 +68,7 @@ class Client:
 
         self.handle.setopt(pycurl.URL, str(url))
 
-        headers = map(lambda val: "%s: %s" % (val, headers[val]), headers)
+        headers = ["%s: %s" % (val, headers[val]) for val in headers]
         self.handle.setopt(pycurl.HTTPHEADER, headers)
 
     def get(self, url, attrs={}, headers={}):
@@ -183,8 +183,8 @@ class API:
         func = getattr(self.client, method.lower())
         try:
             response = func(url, attrs, _headers)
-        except Exception, e:
-            raise self.Error(self.ERROR, "exception", e.__class__.__name__ + `e.args`)
+        except Exception as e:
+            raise self.Error(self.ERROR, "exception", e.__class__.__name__ + repr(e.args))
 
         if not response.code in (self.ALL_OK, self.CREATED, self.DELETED):
             name, description = response.data.split(":", 1)
