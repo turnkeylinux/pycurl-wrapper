@@ -55,8 +55,7 @@ def main():
     maintainer = control_fields['Maintainer']
     maintainer_name, maintainer_email = parse_email(maintainer)
 
-    setup(packages = [''],
-          package_dir = {'': 'pylib'},
+    setup(packages = ['py3curl-wrapper'],
 
           # non-essential meta-data
           name=control_fields['Source'],
