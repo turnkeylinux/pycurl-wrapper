@@ -6,6 +6,7 @@ Build-Depends:
  debhelper (>= 10),
  dh-python,
  python3-all (>= 3.7~),
+ python3-pycurl,
 Standards-Version: 4.0.0
 
 Package: py3curl-wrapper
