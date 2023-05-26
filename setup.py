@@ -23,6 +23,9 @@ def get_version():
     version = [ line.split(" ")[1]
                 for line in output.split("\n")
                 if line.startswith("Version:") ][0]
+    # dirty hack to make sure version is py setuptools compliant
+    if '+g' in version and len(version.split('+')) == 3:
+        version = version.replace('+g', '.devg')
     return version
 
 def parse_control(control):
@@ -66,5 +69,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
-
