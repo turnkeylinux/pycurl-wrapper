@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Alon Swartz <alon@turnkeylinux.org>
 Build-Depends:
  debhelper (>= 10),
- dh-python,
+ dh-python2 (>= 4.20201102+turnkey0),
  python-all (>= 2.6.6-3~),
 Standards-Version: 4.0.0
 X-Python-Version: >= 2.6
