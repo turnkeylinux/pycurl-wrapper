@@ -10,7 +10,7 @@ Build-Depends:
 Standards-Version: 4.0.0
 
 Package: py3curl-wrapper
-Architecture: any
+Architecture: all
 Depends:
  ${misc:Depends},
  ${python:Depends},
