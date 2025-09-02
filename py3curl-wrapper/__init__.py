@@ -2,15 +2,13 @@
 # Copyright (c) 2013 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
 # Copyright (c) 2025 TurnKey GNU/Linux <admin@turnkeylinux.org>
 
-import pycurl
-
-from io import BytesIO
-from urllib.parse import urlencode
-
 import json
 import re
-
+from io import BytesIO
 from typing import ClassVar
+from urllib.parse import urlencode
+
+import pycurl
 
 
 def gen_useragent() -> str:
