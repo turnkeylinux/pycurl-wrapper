@@ -19,7 +19,7 @@ def gen_useragent() -> str:
     try:
         with open("/etc/apt/apt.conf.d/01turnkey") as fob:
             apt_ua = fob.read()
-        m = re.search(r' \((.*?)\)', apt_ua)
+        m = re.search(r" \((.*?)\)", apt_ua)
         if m:
             ua += f" ({m.groups(1)})"
     except FileNotFoundError:
@@ -42,10 +42,10 @@ class Client:
             str.__init__(self)
 
     def __init__(
-            self,
-            cainfo: str | None = None,
-            verbose: bool = False,
-            timeout: int | None = None,
+        self,
+        cainfo: str | None = None,
+        verbose: bool = False,
+        timeout: int | None = None,
     ) -> None:
         self.handle = pycurl.Curl()
         self.handle.setopt(pycurl.VERBOSE, verbose)
@@ -72,10 +72,10 @@ class Client:
         return self.Response(code, type, data)
 
     def _setup(
-            self,
-            url: str,
-            headers: dict[str, str] | None = None,
-            attrs: dict[str, str] | None = None,
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+        attrs: dict[str, str] | None = None,
     ) -> None:
         if not headers:
             headers = {}
@@ -88,10 +88,10 @@ class Client:
         self.handle.setopt(pycurl.HTTPHEADER, headers_list)
 
     def get(
-            self,
-            url: str,
-            attrs: dict[str, str] | None = None,
-            headers: dict[str, str] | None = None,
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> str:
         self._setup(url, headers, attrs)
 
@@ -99,10 +99,10 @@ class Client:
         return self._perform()
 
     def post(
-            self,
-            url: str,
-            attrs: dict[str, str] | None = None,
-            headers: dict[str, str] | None = None,
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> str:
         if attrs is None:
             attrs = {}
@@ -114,10 +114,10 @@ class Client:
         return self._perform()
 
     def put(
-            self,
-            url: str,
-            attrs: dict[str, str] | None = None,
-            headers: dict[str, str] | None = None,
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> str:
         if attrs is None:
             attrs = {}
@@ -133,25 +133,26 @@ class Client:
         return self._perform()
 
     def delete(
-            self,
-            url: str,
-            attrs: dict[str, str] | None = None,
-            headers: dict[str, str] | None = None,
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> str:
         self._setup(url, headers, attrs)
-        self.handle.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
+        self.handle.setopt(pycurl.CUSTOMREQUEST, "DELETE")
 
         return self._perform()
+
 
 # here for backwards compatibility
 class Curl:
     def __init__(
-            self,
-            url: str,
-            headers: dict[str, str] | None = None,
-            cainfo: str | None = None,
-            verbose: bool = False,
-            timeout: int | None = None
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+        cainfo: str | None = None,
+        verbose: bool = False,
+        timeout: int | None = None,
     ) -> None:
         """simplified wrapper to pycurl (get, post, put, delete)
 
@@ -175,9 +176,9 @@ class Curl:
         self.headers = headers
 
     def _perform(
-            self,
-            methodname: str,
-            attrs: dict[str, str] | None = None,
+        self,
+        methodname: str,
+        attrs: dict[str, str] | None = None,
     ) -> str:
         method = getattr(self.client, methodname)
         response = method(self.url, attrs, self.headers)
@@ -191,16 +192,17 @@ class Curl:
         return response.data
 
     def get(self, attrs: dict[str, str] | None = None) -> str:
-        return self._perform('get', attrs)
+        return self._perform("get", attrs)
 
     def post(self, attrs: dict[str, str]) -> str:
-        return self._perform('post', attrs)
+        return self._perform("post", attrs)
 
     def put(self, attrs: dict[str, str]) -> str:
-        return self._perform('put', attrs)
+        return self._perform("put", attrs)
 
     def delete(self, attrs: dict[str, str] | None = None) -> str:
-        return self._perform('delete', attrs)
+        return self._perform("delete", attrs)
+
 
 class API:
     class APIError(Exception):
@@ -221,19 +223,19 @@ class API:
     API_HEADERS: ClassVar = {"Accept": "application/json"}
 
     def __init__(
-            self,
-            cainfo: str | None = None,
-            verbose: bool = False,
-            timeout: int | None = None,
+        self,
+        cainfo: str | None = None,
+        verbose: bool = False,
+        timeout: int | None = None,
     ) -> None:
         self.client = Client(cainfo, verbose, timeout)
 
     def request(
-            self,
-            method: str,
-            url: str,
-            attrs: dict[str, str] | None = None,
-            headers: dict[str, str] | None = None,
+        self,
+        method: str,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> str:
         if headers is None:
             headers = {}
@@ -242,16 +244,14 @@ class API:
 
         # workaround: http://redmine.lighttpd.net/issues/1017
         if method == "PUT":
-            _headers['Expect'] = ''
+            _headers["Expect"] = ""
 
         func = getattr(self.client, method.lower())
         try:
             response = func(url, attrs, _headers)
         except Exception as e:
             raise self.APIError(
-                    self.ERROR,
-                    "exception",
-                    e.__class__.__name__ + repr(e.args)
+                self.ERROR, "exception", e.__class__.__name__ + repr(e.args)
             ) from e
 
         if response.code not in (self.ALL_OK, self.CREATED, self.DELETED):
