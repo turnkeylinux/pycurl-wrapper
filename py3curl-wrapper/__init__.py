@@ -10,8 +10,10 @@ from urllib.parse import urlencode
 import json
 import re
 
+from typing import ClassVar
 
-def gen_useragent():
+
+def gen_useragent() -> str:
     vi = pycurl.version_info()
     ua = f"pycurl_wrapper: libcurl/{vi[1]} {vi[5]} {vi[3]}"
     try:
@@ -33,7 +35,7 @@ class Client:
             _ = type
             return str.__new__(cls, data)
 
-        def __init__(self, code: int, type: str, data: bytes):
+        def __init__(self, code: int, type: str, data: bytes) -> None:
             self.code = code
             self.type = type
             self.data = data
@@ -44,7 +46,7 @@ class Client:
             cainfo: str | None = None,
             verbose: bool = False,
             timeout: int | None = None,
-    ):
+    ) -> None:
         self.handle = pycurl.Curl()
         self.handle.setopt(pycurl.VERBOSE, verbose)
         self.handle.setopt(pycurl.USERAGENT, gen_useragent())
@@ -141,7 +143,7 @@ class Client:
 
         return self._perform()
 
-# here for backwards compatibility 
+# here for backwards compatibility
 class Curl:
     def __init__(
             self,
@@ -150,9 +152,9 @@ class Curl:
             cainfo: str | None = None,
             verbose: bool = False,
             timeout: int | None = None
-    ):
+    ) -> None:
         """simplified wrapper to pycurl (get, post, put, delete)
-        
+
         Usage:
             print Curl(URL).get()
 
@@ -171,7 +173,7 @@ class Curl:
 
         self.url = url
         self.headers = headers
-            
+
     def _perform(
             self,
             methodname: str,
@@ -202,7 +204,7 @@ class Curl:
 
 class API:
     class APIError(Exception):
-        def __init__(self, code: int, name: str, description: str):
+        def __init__(self, code: int, name: str, description: str) -> None:
             super().__init__(code, name, description)
             self.code = code
             self.name = name
@@ -216,14 +218,14 @@ class API:
     DELETED = 204
     ERROR = 500
 
-    API_HEADERS = {'Accept': 'application/json'}
+    API_HEADERS: ClassVar = {"Accept": "application/json"}
 
     def __init__(
             self,
             cainfo: str | None = None,
             verbose: bool = False,
             timeout: int | None = None,
-    ):
+    ) -> None:
         self.client = Client(cainfo, verbose, timeout)
 
     def request(
@@ -250,7 +252,7 @@ class API:
                     self.ERROR,
                     "exception",
                     e.__class__.__name__ + repr(e.args)
-            )
+            ) from e
 
         if response.code not in (self.ALL_OK, self.CREATED, self.DELETED):
             name, description = str(response.data).split(":", 1)
