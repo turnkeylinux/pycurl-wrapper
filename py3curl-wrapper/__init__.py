@@ -203,7 +203,7 @@ class Curl:
 class API:
     class APIError(Exception):
         def __init__(self, code: int, name: str, description: str):
-            Exception.__init__(self, code, name, description)
+            super().__init__(code, name, description)
             self.code = code
             self.name = name
             self.description = description
