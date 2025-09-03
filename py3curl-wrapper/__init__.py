@@ -218,7 +218,7 @@ class API:
     DELETED = 204
     ERROR = 500
 
-    API_HEADERS: ClassVar = {"Accept": "application/json"}
+    API_HEADERS: ClassVar[dict[str, str]] = {"Accept": "application/json"}
 
     def __init__(
         self,
