@@ -1,45 +1,53 @@
-# Copyright (c) 2013 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
 # Copyright (c) 2010 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
-import pycurl
-
-from io import BytesIO
-from urllib.parse import urlencode
+# Copyright (c) 2013 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
+# Copyright (c) 2025 TurnKey GNU/Linux <admin@turnkeylinux.org>
 
 import json
 import re
+from io import BytesIO
+from typing import ClassVar
+from urllib.parse import urlencode
 
-def _useragent():
+import pycurl
+
+
+def gen_useragent() -> str:
     vi = pycurl.version_info()
-    ua = "pycurl_wrapper: libcurl/%s %s %s" % (vi[1], vi[5], vi[3])
+    ua = f"pycurl_wrapper: libcurl/{vi[1]} {vi[5]} {vi[3]}"
     try:
-        apt_ua = file("/etc/apt/apt.conf.d/01turnkey").read()
-        m = re.search(r' \((.*?)\)', apt_ua)
+        with open("/etc/apt/apt.conf.d/01turnkey") as fob:
+            apt_ua = fob.read()
+        m = re.search(r" \((.*?)\)", apt_ua)
         if m:
-            ua += " (%s)" % m.groups(1)
-
-    except:
+            ua += f" ({m.groups(1)})"
+    except FileNotFoundError:
         pass
-
     return ua
 
-USERAGENT = _useragent()
-    
+
 class Client:
     class Response(str):
-        def __new__(cls, code, type, data):
+        def __new__(cls, code: int, type: str, data: bytes) -> str:
+            # stop typing checker whinging
+            _ = code
+            _ = type
             return str.__new__(cls, data)
 
-        def __init__(self, code, type, data):
+        def __init__(self, code: int, type: str, data: bytes) -> None:
             self.code = code
             self.type = type
             self.data = data
-
             str.__init__(self)
 
-    def __init__(self, cainfo=None, verbose=False, timeout=None):
+    def __init__(
+        self,
+        cainfo: str | None = None,
+        verbose: bool = False,
+        timeout: int | None = None,
+    ) -> None:
         self.handle = pycurl.Curl()
         self.handle.setopt(pycurl.VERBOSE, verbose)
-        self.handle.setopt(pycurl.USERAGENT, USERAGENT)
+        self.handle.setopt(pycurl.USERAGENT, gen_useragent())
 
         if timeout:
             self.handle.setopt(pycurl.NOSIGNAL, True)
@@ -48,7 +56,7 @@ class Client:
         if cainfo:
             self.handle.setopt(pycurl.CAINFO, cainfo)
 
-    def _perform(self):
+    def _perform(self) -> str:
         response_buffer = BytesIO()
 
         self.handle.setopt(pycurl.WRITEFUNCTION, response_buffer.write)
@@ -61,22 +69,41 @@ class Client:
         response_buffer.close()
         return self.Response(code, type, data)
 
-    def _setup(self, url, headers={}, attrs={}):
+    def _setup(
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+        attrs: dict[str, str] | None = None,
+    ) -> None:
+        if not headers:
+            headers = {}
         if attrs:
-            url = "%s?%s" % (url, urlencode(attrs))
+            url = f"{url}?{urlencode(attrs)}"
 
         self.handle.setopt(pycurl.URL, str(url))
 
-        headers = ["%s: %s" % (val, headers[val]) for val in headers]
-        self.handle.setopt(pycurl.HTTPHEADER, headers)
+        headers_list = [f"{k}: {v}" for k, v in headers.items()]
+        self.handle.setopt(pycurl.HTTPHEADER, headers_list)
 
-    def get(self, url, attrs={}, headers={}):
+    def get(
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> str:
         self._setup(url, headers, attrs)
 
         self.handle.setopt(pycurl.HTTPGET, True)
         return self._perform()
 
-    def post(self, url, attrs, headers={}):
+    def post(
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> str:
+        if attrs is None:
+            attrs = {}
         self._setup(url, headers)
 
         self.handle.setopt(pycurl.POST, True)
@@ -84,7 +111,14 @@ class Client:
 
         return self._perform()
 
-    def put(self, url, attrs, headers={}):
+    def put(
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> str:
+        if attrs is None:
+            attrs = {}
         self._setup(url, headers)
 
         encoded_attrs = urlencode(attrs).encode()
@@ -96,17 +130,30 @@ class Client:
 
         return self._perform()
 
-    def delete(self, url, attrs={}, headers={}):
+    def delete(
+        self,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> str:
         self._setup(url, headers, attrs)
-        self.handle.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
+        self.handle.setopt(pycurl.CUSTOMREQUEST, "DELETE")
 
         return self._perform()
 
-# here for backwards compatibility 
+
+# here for backwards compatibility
 class Curl:
-    def __init__(self, url, headers={}, cainfo=None, verbose=False, timeout=None):
+    def __init__(
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+        cainfo: str | None = None,
+        verbose: bool = False,
+        timeout: int | None = None,
+    ) -> None:
         """simplified wrapper to pycurl (get, post, put, delete)
-        
+
         Usage:
             print Curl(URL).get()
 
@@ -125,8 +172,12 @@ class Curl:
 
         self.url = url
         self.headers = headers
-            
-    def _perform(self, methodname, attrs={}):
+
+    def _perform(
+        self,
+        methodname: str,
+        attrs: dict[str, str] | None = None,
+    ) -> str:
         method = getattr(self.client, methodname)
         response = method(self.url, attrs, self.headers)
 
@@ -138,55 +189,71 @@ class Curl:
 
         return response.data
 
-    def get(self, attrs={}):
-        return self._perform('get', attrs)
+    def get(self, attrs: dict[str, str] | None = None) -> str:
+        return self._perform("get", attrs)
 
-    def post(self, attrs):
-        return self._perform('post', attrs)
+    def post(self, attrs: dict[str, str]) -> str:
+        return self._perform("post", attrs)
 
-    def put(self, attrs):
-        return self._perform('put', attrs)
+    def put(self, attrs: dict[str, str]) -> str:
+        return self._perform("put", attrs)
 
-    def delete(self, attrs={}):
-        return self._perform('delete', attrs)
+    def delete(self, attrs: dict[str, str] | None = None) -> str:
+        return self._perform("delete", attrs)
+
 
 class API:
-    class Error(Exception):
-        def __init__(self, code, name, description):
-            Exception.__init__(self, code, name, description)
+    class APIError(Exception):
+        def __init__(self, code: int, name: str, description: str) -> None:
+            super().__init__(code, name, description)
             self.code = code
             self.name = name
             self.description = description
 
-        def __str__(self):
-            return "%s - %s (%s)" % (self.code, self.name, self.description)
+        def __str__(self) -> str:
+            return f"{self.code} - {self.name} ({self.description})"
 
     ALL_OK = 200
     CREATED = 201
     DELETED = 204
     ERROR = 500
 
-    API_HEADERS = {'Accept': 'application/json'}
+    API_HEADERS: ClassVar[dict[str, str]] = {"Accept": "application/json"}
 
-    def __init__(self, cainfo=None, verbose=False, timeout=None):
+    def __init__(
+        self,
+        cainfo: str | None = None,
+        verbose: bool = False,
+        timeout: int | None = None,
+    ) -> None:
         self.client = Client(cainfo, verbose, timeout)
 
-    def request(self, method, url, attrs={}, headers={}):
+    def request(
+        self,
+        method: str,
+        url: str,
+        attrs: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> str:
+        if headers is None:
+            headers = {}
         _headers = self.API_HEADERS.copy()
         _headers.update(headers)
 
         # workaround: http://redmine.lighttpd.net/issues/1017
         if method == "PUT":
-            _headers['Expect'] = ''
+            _headers["Expect"] = ""
 
         func = getattr(self.client, method.lower())
         try:
             response = func(url, attrs, _headers)
         except Exception as e:
-            raise self.Error(self.ERROR, "exception", e.__class__.__name__ + repr(e.args))
+            raise self.APIError(
+                self.ERROR, "exception", e.__class__.__name__ + repr(e.args)
+            ) from e
 
-        if not response.code in (self.ALL_OK, self.CREATED, self.DELETED):
+        if response.code not in (self.ALL_OK, self.CREATED, self.DELETED):
             name, description = str(response.data).split(":", 1)
-            raise self.Error(response.code, name, description)
+            raise self.APIError(response.code, name, description)
 
         return json.loads(response.data)
