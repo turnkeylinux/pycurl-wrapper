@@ -15,7 +15,6 @@ Depends:
  ${misc:Depends},
  ${python:Depends},
  python-pycurl,
- python-simplejson,
 Suggests:
  python-profiler,
 Description: Simplified wrapper for python-pycurl

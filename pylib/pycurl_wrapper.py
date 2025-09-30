@@ -5,7 +5,7 @@ import pycurl
 from cStringIO import StringIO
 from urllib import urlencode
 
-import simplejson as json
+import json
 import re
 
 def _useragent():
