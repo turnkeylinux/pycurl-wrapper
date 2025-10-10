@@ -5,7 +5,7 @@
 import json
 import re
 from io import BytesIO
-from typing import ClassVar
+from typing import ClassVar, Self
 from urllib.parse import urlencode
 
 import pycurl
@@ -27,7 +27,7 @@ def gen_useragent() -> str:
 
 class Client:
     class Response(str):
-        def __new__(cls, code: int, type: str, data: bytes) -> str:
+        def __new__(cls, code: int, type: str, data: bytes) -> Self:
             # stop typing checker whinging
             _ = code
             _ = type

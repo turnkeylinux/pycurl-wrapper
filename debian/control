@@ -1,13 +1,15 @@
 Source: pycurl-wrapper
 Section: python
 Priority: optional
-Maintainer: Alon Swartz <alon@turnkeylinux.org>
+Maintainer: Jeremy Davis <jeremy@turnkeylinux.org>
 Build-Depends:
  debhelper (>= 10),
  dh-python,
- python3-all (>= 3.7~),
+ pybuild-plugin-pyproject,
+ python3-all (>= 3.11~),
  python3-pycurl,
 Standards-Version: 4.0.0
+X-Python-Version: >= 3.11
 
 Package: py3curl-wrapper
 Architecture: all
