@@ -17,4 +17,4 @@ packages = ["py3curl_wrapper"]
 include-package-data = false
 
 [tool.setuptools.package-data]
-pool_lib = ["py.typed"]
+py3curl_wrapper = ["py.typed"]
